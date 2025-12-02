@@ -3886,7 +3886,7 @@ check-builtins::
 .PHONY: coverage coverage-clean coverage-compile coverage-test coverage-report
 .PHONY: coverage-untested-functions cover_db cover_db_html
 .PHONY: coverage-clean-results
-.PHONY: trace trace-clean script disable-aslr
+.PHONY: trace trace-build trace-clean script disable-aslr
 
 coverage:
 	$(MAKE) coverage-test
@@ -3986,7 +3986,12 @@ disable-aslr:
 		echo "ASLR is already disabled."; \
 	fi
 
-trace: all disable-aslr
+# Build git and then run trace (for convenience)
+trace-build: all trace
+
+# Run perf trace on the test suite
+# Note: Assumes git binaries are already built (run 'make all' or 'make trace-build' first)
+trace: disable-aslr
 	$(PERF) record $(PERF_TRC_OPTS) -- \
 		$(MAKE) DEFAULT_TEST_TARGET=test GIT_TEST_CHAIN_LINT=0 test
 	@mv perf.data trace.perf.data
