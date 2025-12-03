@@ -3993,9 +3993,14 @@ trace-build: all trace
 # Note: Assumes git binaries are already built (run 'make all' or 'make trace-build' first)
 trace: disable-aslr
 	$(PERF) record $(PERF_TRC_OPTS) -- \
-		$(MAKE) DEFAULT_TEST_TARGET=test TEST_LINT= PERL_PATH= test
-	@mv perf.data trace.perf.data
-	@echo "Trace data collected in trace.perf.data"
+		$(MAKE) DEFAULT_TEST_TARGET=test TEST_LINT= PERL_PATH= -k test || true
+	@if [ -f perf.data ]; then \
+		mv perf.data trace.perf.data; \
+		echo "Trace data collected in trace.perf.data"; \
+	else \
+		echo "Warning: No trace data generated"; \
+		exit 1; \
+	fi
 
 script: trace
 	@mkdir -p trace
